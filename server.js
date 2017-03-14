@@ -1,9 +1,8 @@
 var express = require('express');
 var p = require('path');
 const fs = require('fs');
-//const xml2js = require('xml2js');
 var phonebook = require('./phonebook');
-var endOfLine = require('os').EOL;
+const endOfLine = require('os').EOL;
 var sqlite = require('sqlite-sync');
 
 const db_name = "phonebook_db.sql";
@@ -16,15 +15,19 @@ const rl = readline.createInterface({
 
 //creo il db
 sqlite.connect(':memory:');
-sqlite.run("CREATE TABLE lorem (info TEXT)");	
+sqlite.run("CREATE TABLE contacts (id NUMBER, name TEXT, surname TEXT, number TEXT)");	
 console.log("DB created [OK]");
   
+idRow = 1;
 rl.on('line', function(line) {
 	//Salvo le righe nel db in memoria
-	sqlite.insert("lorem", {'info': line});
+	let rawRow = line.split(';');
+	sqlite.insert("contacts", {'id': idRow, 'number': rawRow[2], 'name':rawRow[0], 'surname':rawRow[1] });
+	idRow++;
 });
 rl.on('close', function(close) {
 	console.log("Contacts loaded [OK]");
+	delete idRow;
 });
 
 var app = express();
@@ -36,15 +39,20 @@ app.get('/', function (req, res) {
 	
 	let type = req.query.type;
 
-	if(isParamsNormalized(type )) {
-		var xml = "<?xml version='1.0' encoding='UTF-8' ?>"+endOfLine;
-		var xmlBody = "";
-		var results = sqlite.run("SELECT info FROM lorem");
+	if(isParamsNormalized(type ) && type=="yp") {
+		let xml = "<?xml version='1.0' encoding='UTF-8' ?>"+endOfLine;
+		let xmlBody = "";
+		let results = sqlite.run("SELECT id,number,name,surname FROM contacts");
+		
 		for(let i=0;i<results.length; i++){
 			xmlBody += "<entry>"+endOfLine;
-			xmlBody += results[i].info+endOfLine;
+			xmlBody += "<fn>"+results[i].name+"</fn>"+endOfLine;
+			xmlBody += "<ln>"+results[i].surname+"</ln>"+endOfLine;
+			xmlBody += "<hm>"+results[i].number+"</hm>"+endOfLine;
 			xmlBody += "</entry>"+endOfLine;
 		}
+	//	xmlBody += "</list>";
+		
 	    xml += xmlBody;
 		console.log(xmlBody);
 		res.send(xml);		
@@ -55,18 +63,15 @@ app.get('/', function (req, res) {
 	}
 });
 
-
 app.listen(3000, function () { });
 
 console.log("Server started [OK]");
 console.log("Press CTRL+C to exit");
 
-var phone = phonebook.Phonebook();
-
 process.on('SIGINT', function() {
-    console.log("Esco");
+    console.log("Closed DB [OK]");
 	sqlite.close();
-	console.log("Chiudo il DB");
+	console.log("Exting");	
     process.exit();
 });
 
