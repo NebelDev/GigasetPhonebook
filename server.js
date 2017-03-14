@@ -1,30 +1,30 @@
 var express = require('express');
 var p = require('path');
 const fs = require('fs');
+//const xml2js = require('xml2js');
 var phonebook = require('./phonebook');
-var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database(':memory:');
+var endOfLine = require('os').EOL;
+var sqlite = require('sqlite-sync');
+
+const db_name = "phonebook_db.sql";
 
 const readline = require('readline');
-/*
-const rl = readline.createInterface({
-  input: fs.createReadStream('sample.txt')
-});
-*/
-//creo il db
-db.serialize( function() {
-	db.run("CREATE TABLE lorem (info TEXT)");
-	var stmt = db.prepare("INSERT INTO lorem VALUES (?)");
-  for (var i = 0; i < 10; i++) {
-      stmt.run("Ipsum " + i);
-  }
-  stmt.finalize();
 
-	/*
-rl.on('line', (line) => {
+const rl = readline.createInterface({
+  input: fs.createReadStream(db_name)
+});
+
+//creo il db
+sqlite.connect(':memory:');
+sqlite.run("CREATE TABLE lorem (info TEXT)");	
+console.log("DB created [OK]");
+  
+rl.on('line', function(line) {
 	//Salvo le righe nel db in memoria
-  //console.log(`Line from file: ${line}`);
-});*/
+	sqlite.insert("lorem", {'info': line});
+});
+rl.on('close', function(close) {
+	console.log("Contacts loaded [OK]");
 });
 
 var app = express();
@@ -35,21 +35,19 @@ app.use('/backend', express.static(secureDir));
 app.get('/', function (req, res) {
 	
 	let type = req.query.type;
-	console.log(req.path+req.params);
-	
-	db.serialize( function() {
-		  db.each("SELECT rowid AS id, info FROM lorem", function(err, row) {
-				console.log(row.id + ": " + row.info);
-		  });
-	});
-	
-	
+
 	if(isParamsNormalized(type )) {
-		let xml = "asd";
-		for(let i=0;i<10;i++){
-			xml +=xml;
+		var xml = "<?xml version='1.0' encoding='UTF-8' ?>"+endOfLine;
+		var xmlBody = "";
+		var results = sqlite.run("SELECT info FROM lorem");
+		for(let i=0;i<results.length; i++){
+			xmlBody += "<entry>"+endOfLine;
+			xmlBody += results[i].info+endOfLine;
+			xmlBody += "</entry>"+endOfLine;
 		}
-		res.send(xml);
+	    xml += xmlBody;
+		console.log(xmlBody);
+		res.send(xml);		
 	}
 	else{
 		res.status(500);
@@ -61,13 +59,13 @@ app.get('/', function (req, res) {
 app.listen(3000, function () { });
 
 console.log("Server started [OK]");
+console.log("Press CTRL+C to exit");
 
 var phone = phonebook.Phonebook();
 
-
 process.on('SIGINT', function() {
     console.log("Esco");
-	db.close();
+	sqlite.close();
 	console.log("Chiudo il DB");
     process.exit();
 });

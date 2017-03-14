@@ -5,7 +5,7 @@
   "main": "server.js",
   "dependencies": {
     "express": "^4.15.2",
-    "sqlite3": "^3.1.8",
+    "sqlite-sync": "^0.3.6",
     "xml2js": "^0.4.17"
   },
   "devDependencies": {},
