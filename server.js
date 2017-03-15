@@ -4,10 +4,9 @@ const fs = require('fs');
 var phonebook = require('./phonebook');
 const endOfLine = require('os').EOL;
 var sqlite = require('sqlite-sync');
+const readline = require('readline');
 
 const db_name = "phonebook_db.sql";
-
-const readline = require('readline');
 
 const rl = readline.createInterface({
   input: fs.createReadStream(db_name)
@@ -33,29 +32,38 @@ rl.on('close', function(close) {
 var app = express();
 var secureDir = p.join(__dirname, "public");
 
+app.disable('x-powered-by');
 app.use('/backend', express.static(secureDir));
 
 app.get('/', function (req, res) {
 	
 	let type = req.query.type;
 
-	if(isParamsNormalized(type ) && type=="yp") {
-		let xml = "<?xml version='1.0' encoding='UTF-8' ?>"+endOfLine;
-		let xmlBody = "";
+	//Create the Public phonebook
+	if(isParamsNormalized(type) && type=="pb") {		
+		
+		let count = req.query.count;
 		let results = sqlite.run("SELECT id,number,name,surname FROM contacts");
 		
-		for(let i=0;i<results.length; i++){
-			xmlBody += "<entry>"+endOfLine;
+		let tot = (count < results.length) ? count : results.length;
+		
+		let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+endOfLine;
+		xml += "<list response=\"get_list\" type=\"pb\" total=\""+tot+"\" first=\"1\" last=\"2\">"+endOfLine;
+		let xmlBody = "";
+		
+		for(let i=0;i<tot; i++){
+			xmlBody += "<entry id=\""+(i+1)+"\">"+endOfLine;
 			xmlBody += "<fn>"+results[i].name+"</fn>"+endOfLine;
 			xmlBody += "<ln>"+results[i].surname+"</ln>"+endOfLine;
 			xmlBody += "<hm>"+results[i].number+"</hm>"+endOfLine;
 			xmlBody += "</entry>"+endOfLine;
 		}
-	//	xmlBody += "</list>";
+		xmlBody += "</list>";
 		
 	    xml += xmlBody;
-		console.log(xmlBody);
-		res.send(xml);		
+		//DEBUG - da rimuovere
+		console.log(xml);
+		res.send(xml);
 	}
 	else{
 		res.status(500);
