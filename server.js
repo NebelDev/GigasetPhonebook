@@ -1,7 +1,7 @@
 var express = require('express');
 var p = require('path');
 const fs = require('fs');
-var phonebook = require('./phonebook');
+//var phonebook = require('./phonebook');
 const endOfLine = require('os').EOL;
 var sqlite = require('sqlite-sync');
 const readline = require('readline');
@@ -14,7 +14,7 @@ const rl = readline.createInterface({
 
 //creo il db
 sqlite.connect(':memory:');
-sqlite.run("CREATE TABLE contacts (id NUMBER, name TEXT, surname TEXT, number TEXT)");	
+sqlite.run("CREATE TABLE contacts (id INT, name TEXT, surname TEXT, number TEXT)");	
 console.log("DB created [OK]");
   
 idRow = 1;
@@ -43,12 +43,14 @@ app.get('/', function (req, res) {
 		
 		let count = req.query.count;
 		let first = req.query.first;
-		let results = sqlite.run("SELECT id,number,name,surname FROM contacts");
-		
+				
+		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1));
+		let totalContacts = sqlite.run("SELECT id from contacts");
+				
 		let tot = (count < results.length) ? count : results.length;
 		
 		let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+endOfLine;
-		xml += "<list response=\"get_list\" type=\"pb\" total=\""+results.length+"\" first=\""+first+"\" last=\""+(Number(count)+Number(first)-1)+"\">"+endOfLine;
+		xml += "<list response=\"get_list\" type=\"pb\" total=\""+totalContacts.length+"\" first=\""+first+"\" last=\""+(Number(count)+Number(first)-1)+"\">"+endOfLine;
 		let xmlBody = "";
 		
 		for(let i=0;i<tot; i++){
