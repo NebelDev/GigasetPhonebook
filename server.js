@@ -38,17 +38,17 @@ app.use('/backend', express.static(secureDir));
 app.get('/', function (req, res) {
 	
 	let type = req.query.type;
-
 	//Create the Public phonebook
 	if(isParamsNormalized(type) && type=="pb") {		
 		
 		let count = req.query.count;
+		let first = req.query.first;
 		let results = sqlite.run("SELECT id,number,name,surname FROM contacts");
 		
 		let tot = (count < results.length) ? count : results.length;
 		
 		let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+endOfLine;
-		xml += "<list response=\"get_list\" type=\"pb\" total=\""+tot+"\" first=\"1\" last=\"2\">"+endOfLine;
+		xml += "<list response=\"get_list\" type=\"pb\" total=\""+results.length+"\" first=\""+first+"\" last=\""+(Number(count)+Number(first)-1)+"\">"+endOfLine;
 		let xmlBody = "";
 		
 		for(let i=0;i<tot; i++){
