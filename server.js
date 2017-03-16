@@ -31,6 +31,7 @@ rl.on('close', function(close) {
 var app = express();
 var secureDir = p.join(__dirname, "public");
 
+
 app.disable('x-powered-by');
 app.use('/backend', express.static(secureDir));
 

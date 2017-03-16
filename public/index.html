@@ -1,7 +1,22 @@
+<!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<script src="./js/angular.min.js"></script>
 </head>
-<body>
-Prova Node + Express and static file
+    <body ng-app="myApp" ng-controller="myCtrl">
+ Ciao da Angular {{firstName}}
+    <div>
+ 
+    </div> 
+    
+    <script>
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope) {
+    $scope.firstName = "John";
+    $scope.lastName = "Doe";
+});
+    </script> 
+ 
 </body>
 </html>
