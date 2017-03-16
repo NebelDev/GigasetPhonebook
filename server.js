@@ -38,7 +38,7 @@ app.get('/', function (req, res) {
 	
 	let type = req.query.type;
 	//Create the Public phonebook
-	if(isParamsNormalized(type) && type=="pb") {		
+	if(type!= undefined && type=="pb") {		
 		
 		let count = req.query.count;
 		let first = req.query.first;
@@ -63,7 +63,7 @@ app.get('/', function (req, res) {
 		
 	    xml += xmlBody;
 		//DEBUG - da rimuovere
-		console.log(xml);
+		//console.log(xml);
 		res.send(xml);
 	}
 	else{
@@ -83,10 +83,3 @@ process.on('SIGINT', function() {
 	console.log("Exting");	
     process.exit();
 });
-
-function isParamsNormalized(t){
-	if(t!= undefined){
-		return true;
-	}
-	return false;
-}

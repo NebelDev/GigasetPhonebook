@@ -11,6 +11,6 @@
   "scripts": {
     "start": "node server.js"
   },
-  "author": "",
+  "author": "Davide Basso",
   "license": "MIT"
 }
