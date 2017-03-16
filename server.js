@@ -1,7 +1,6 @@
 var express = require('express');
 var p = require('path');
 const fs = require('fs');
-//var phonebook = require('./phonebook');
 const endOfLine = require('os').EOL;
 var sqlite = require('sqlite-sync');
 const readline = require('readline');
