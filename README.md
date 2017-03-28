@@ -1,5 +1,6 @@
 # GigasetPhonebook :orange_book:
-Gigaset XML phonebook 
+Gigaset phonebook integration that allow you to use public and yellow page phonebooks.
+Gigaset XML phonebook is built with Node.js and AngularJS. 
 
 ## Prerequisites
 To run this app you need to have installed on your system Node.js In case you miss it you can download here: https://nodejs.org.
