@@ -14,4 +14,4 @@ cd GigasetPhonebook
 npm install
 ```
 When finished you are ready to start the server.
-Note: the web server default port is 3000. You can change it on the code.
+Note: the web server default port is **3000**. You can change it on the code.
