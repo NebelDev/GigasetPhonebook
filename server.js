@@ -52,24 +52,22 @@ app.get('/', function (req, res) {
 		let first = req.query.first;
 						
 		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " order by id");
-		//TODO: Controllare il totale nel caso in cui si filtra per i dati passati dal telefono.
-		let totalContacts = sqlite.run("SELECT id from contacts ");
 		
-	//	if(totalContacts !== ""){
+		if(results!== undefined && results.length> 0){
+		let totalContacts = sqlite.run("SELECT id from contacts ");
+
 			let tot = (count < results.length) ? count : results.length;
 
 			let xml = getXMLPhonebook(results, type, count, first, totalContacts.length, tot);
 			//DEBUG - da rimuovere
 			//console.log(xml);
 			res.send(xml);
-		/*}
-	//	else{
-			res.status(500);
-			res.send('error');
-		}*/
+		}
+		else{
+			showError(res);
+		}
 	}else{
-			res.status(500);
-			res.send('error');		
+			showError(res);
 	}
 });
 
@@ -109,4 +107,9 @@ function getXMLPhonebook(r, t, c, f, ctot, tot){
 function getFilteredResults(query){
 	
 	return "";
+}
+
+function showError(r){
+	r.status(500);
+	r.send('error');
 }
