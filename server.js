@@ -30,6 +30,9 @@ rl.on('close', function(close) {
 	delete idRow;
 });
 
+
+//populateDatabse();
+
 var app = express();
 
 app.disable('x-powered-by');
@@ -39,20 +42,31 @@ app.get('/', function (req, res) {
 	
 	let type = req.query.type;
 	//Create the Public phonebook
-	if(type!= undefined && type=="pb") {		
+	if(type!= undefined) {
 		
+		let filters = "";
+		if(type==="pb" || type ==="yp"){
+			filters = getFilteredResults(res.query);
+		}
 		let count = req.query.count;
 		let first = req.query.first;
-				
-		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1));
-		let totalContacts = sqlite.run("SELECT id from contacts");
-				
-		let tot = (count < results.length) ? count : results.length;
+						
+		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " order by id");
+		//TODO: Controllare il totale nel caso in cui si filtra per i dati passati dal telefono.
+		let totalContacts = sqlite.run("SELECT id from contacts ");
+		
+	//	if(totalContacts !== ""){
+			let tot = (count < results.length) ? count : results.length;
 
-		let xml = getXMLPhonebook(results, type, count, first, totalContacts.length, tot);
-		//DEBUG - da rimuovere
-		//console.log(xml);
-		res.send(xml);
+			let xml = getXMLPhonebook(results, type, count, first, totalContacts.length, tot);
+			//DEBUG - da rimuovere
+			//console.log(xml);
+			res.send(xml);
+		/*}
+	//	else{
+			res.status(500);
+			res.send('error');
+		}*/
 	}else{
 			res.status(500);
 			res.send('error');		
@@ -65,25 +79,34 @@ console.log("Server started on port "+WEB_SERVER_PORT+" [OK]");
 console.log("Press CTRL+C to exit");
 
 process.on('SIGINT', function() {
-	console.log("Closed DB [OK]");
 	sqlite.close();
-	console.log("Exting");	
+	console.log("Closed DB [OK]");	
+	console.log("Exit");	
 	process.exit();
 });
 
 function getXMLPhonebook(r, t, c, f, ctot, tot){
 	let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+endOfLine;
-	xml += "<list response=\"get_list\" type=\""+t+"\" total=\""+ctot+"\" first=\""+f+"\" last=\""+(Number(c)+Number(f)-1)+"\">"+endOfLine;
+	//TODO: Controllare che ID restituito non sia superiore al totale dei contatti presenti
+	let last = (Number(c) + Number(f) -1);
+	last = (last > ctot) ? ctot : last;
+	xml += "<list response=\"get_list\" type=\""+t+"\" total=\""+ctot+"\" first=\""+f+"\" last=\""+(last)+"\">"+endOfLine;
 	let xmlBody = "";
 		
 	for(let i=0;i<tot; i++){
-		xmlBody += "<entry id=\""+(i+1)+"\">"+endOfLine;
+		xmlBody += "<entry id=\""+(f)+"\">"+endOfLine;
 		xmlBody += "<fn>"+r[i].name+"</fn>"+endOfLine;
 		xmlBody += "<ln>"+r[i].surname+"</ln>"+endOfLine;
 		xmlBody += "<hm>"+r[i].number+"</hm>"+endOfLine;
 		xmlBody += "</entry>"+endOfLine;
+		f = Number(f) +1;
 	}
 	xmlBody += "</list>";	
 	xml += xmlBody;
 	return xml;
+}
+
+function getFilteredResults(query){
+	
+	return "";
 }
