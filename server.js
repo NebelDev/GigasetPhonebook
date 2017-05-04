@@ -41,7 +41,7 @@ app.use('/backend', express.static( path.join(__dirname, "public")));
 app.get('/', function (req, res) {
 	
 	let type = req.query.type;
-	//Create the Public phonebook
+	//Create the Public and Yellow phonebook
 	if(type!= undefined) {
 		
 		let filters = "";
@@ -57,10 +57,7 @@ app.get('/', function (req, res) {
 		let totalContacts = sqlite.run("SELECT id from contacts ");
 
 			let tot = (count < results.length) ? count : results.length;
-
 			let xml = getXMLPhonebook(results, type, count, first, totalContacts.length, tot);
-			//DEBUG - da rimuovere
-			//console.log(xml);
 			res.send(xml);
 		}
 		else{
@@ -85,7 +82,6 @@ process.on('SIGINT', function() {
 
 function getXMLPhonebook(r, t, c, f, ctot, tot){
 	let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+endOfLine;
-	//TODO: Controllare che ID restituito non sia superiore al totale dei contatti presenti
 	let last = (Number(c) + Number(f) -1);
 	last = (last > ctot) ? ctot : last;
 	xml += "<list response=\"get_list\" type=\""+t+"\" total=\""+ctot+"\" first=\""+f+"\" last=\""+(last)+"\">"+endOfLine;
@@ -104,8 +100,7 @@ function getXMLPhonebook(r, t, c, f, ctot, tot){
 	return xml;
 }
 
-function getFilteredResults(query){
-	
+function getFilteredResults(query){	
 	return "";
 }
 
