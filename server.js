@@ -30,13 +30,10 @@ rl.on('close', function(close) {
 	delete idRow;
 });
 
-
-//populateDatabse();
-
 var app = express();
 
 app.disable('x-powered-by');
-app.use('/backend', express.static( path.join(__dirname, "public")));
+//app.use('/backend', express.static( path.join(__dirname, "public")));
 
 app.get('/', function (req, res) {
 	
@@ -51,7 +48,7 @@ app.get('/', function (req, res) {
 		let count = req.query.count;
 		let first = req.query.first;
 						
-		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " order by id");
+		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " "+ filters +"order by id");
 		
 		if(results!== undefined && results.length> 0){
 		let totalContacts = sqlite.run("SELECT id from contacts ");
