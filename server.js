@@ -33,7 +33,6 @@ rl.on('close', function(close) {
 var app = express();
 
 app.disable('x-powered-by');
-//app.use('/backend', express.static( path.join(__dirname, "public")));
 
 app.get('/', function (req, res) {
 	
@@ -41,18 +40,15 @@ app.get('/', function (req, res) {
 	//Create the Public and Yellow phonebook
 	if(type!= undefined) {
 		
-		let filters = "";
-		if(type==="pb" || type ==="yp"){
-			filters = getFilteredResults(res.query);
-		}
+		let filters = getFilteredResults(req.query);
+
 		let count = req.query.count;
 		let first = req.query.first;
 						
-		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " "+ filters +"order by id");
-		
+		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " "+ filters +" order by id");
+				
 		if(results!== undefined && results.length> 0){
-		let totalContacts = sqlite.run("SELECT id from contacts ");
-
+		let totalContacts = sqlite.run("SELECT id from contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " "+ filters +" order by id");
 			let tot = (count < results.length) ? count : results.length;
 			let xml = getXMLPhonebook(results, type, count, first, totalContacts.length, tot);
 			res.send(xml);
@@ -97,8 +93,20 @@ function getXMLPhonebook(r, t, c, f, ctot, tot){
 	return xml;
 }
 
-function getFilteredResults(query){	
-	return "";
+function getFilteredResults(query){
+	let surname = query.ln;
+	surname = surname.substring(0,surname.length-1);
+	let name = query.fn;
+	let q = "";
+	
+	if(surname !== ""){
+		q = "and lower(surname) LIKE \'"+surname.toLowerCase() +"%\'";
+	}
+	else{
+		q = "and lower(name) LIKE \'"+name.toLowerCase() +"%\'";
+	}
+	
+	return q
 }
 
 function showError(r){
