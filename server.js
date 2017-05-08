@@ -15,7 +15,7 @@ const rl = readline.createInterface({
 
 //creo il db
 sqlite.connect(':memory:');
-sqlite.run("CREATE TABLE contacts (id INT, name TEXT, surname TEXT, number TEXT, office TEXT, mobile TEXT)");	
+sqlite.run("CREATE TABLE contacts (id INT, name TEXT, surname TEXT, number TEXT)");	
 console.log("DB created [OK]");
   
 idRow = 1;
@@ -31,11 +31,9 @@ rl.on('close', function(close) {
 });
 
 var app = express();
-
 app.disable('x-powered-by');
 
-app.get('/', function (req, res) {
-	
+app.get('/', function (req, res) {	
 	let type = req.query.type;
 	//Create the Public and Yellow phonebook
 	if(type!= undefined) {
@@ -84,7 +82,7 @@ function getXMLPhonebook(r, t, c, f, ctot, tot){
 		xmlBody += "<entry id=\""+(f)+"\">"+endOfLine;
 		xmlBody += "<fn>"+r[i].name+"</fn>"+endOfLine;
 		xmlBody += "<ln>"+r[i].surname+"</ln>"+endOfLine;
-		xmlBody += "<hm>"+r[i].number+"</hm>"+endOfLine;
+		xmlBody += "<mb>"+r[i].number+"</mb>"+endOfLine;
 		xmlBody += "</entry>"+endOfLine;
 		f = Number(f) +1;
 	}
@@ -95,15 +93,16 @@ function getXMLPhonebook(r, t, c, f, ctot, tot){
 
 function getFilteredResults(query){
 	let surname = query.ln;
-	surname = surname.substring(0,surname.length-1);
-	let name = query.fn;
+	surname = surname.substring(0, surname.length-1);
+	let bphone = query.bp;
+	bphone = bphone.substring(0, bphone.length-1);
 	let q = "";
 	
 	if(surname !== ""){
 		q = "and lower(surname) LIKE \'"+surname.toLowerCase() +"%\'";
 	}
 	else{
-		q = "and lower(name) LIKE \'"+name.toLowerCase() +"%\'";
+		q = "and number LIKE \'"+ bphone +"%\'";
 	}
 	
 	return q
