@@ -15,3 +15,10 @@ npm install
 ```
 When finished you are ready to start the server.
 Note: the web server default port is **3000**. You can change it on the code.
+
+## Run
+
+After the installation process move into the project directory and start the phonebook server.
+```
+node server.js
+```
