@@ -22,3 +22,13 @@ After the installation process, move into the project directory and start the ph
 ```
 node server.js
 ```
+
+## Populate phonebook
+
+To populate contacts into phonebook file you can add name, surname and phone at the file separeted by ";".
+
+E.g.:
+```
+Username;Surname;123456
+Username2;Surname2;654321
+```
