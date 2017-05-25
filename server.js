@@ -43,11 +43,17 @@ app.get('/', function (req, res) {
 		let count = req.query.count;
 		let first = req.query.first;
 						
-		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " "+ filters +" order by id");
-				
+		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " and "+ filters +" order by id");
+						
 		if(results!== undefined && results.length> 0){
-		let totalContacts = sqlite.run("SELECT id from contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " "+ filters +" order by id");
+			//console.log("SELECT id from contacts where "+ filters +" order by id");
+			let totalContacts = sqlite.run("SELECT id from contacts where "+ filters +" order by id");
+
 			let tot = (count < results.length) ? count : results.length;
+			/*console.log("TOTALE:"+ tot);
+			console.log("COUNT:"+ count);
+			console.log("totalContacts:"+ totalContacts.length);
+			*/
 			let xml = getXMLPhonebook(results, type, count, first, totalContacts.length, tot);
 			res.send(xml);
 		}
@@ -81,12 +87,13 @@ function getXMLPhonebook(r, t, c, f, ctot, tot){
 	for(let i=0;i<tot; i++){
 		xmlBody += "<entry id=\""+(f)+"\">"+endOfLine;
 		xmlBody += "<fn>"+r[i].name+"</fn>"+endOfLine;
-		xmlBody += "<ln>"+r[i].surname+"</ln>"+endOfLine;
+		//xmlBody += "<ln>"+r[i].surname+"</ln>"+endOfLine;
+		xmlBody += "<ln>"+Number(f)+"</ln>"+endOfLine;
 		xmlBody += "<mb>"+r[i].number+"</mb>"+endOfLine;
 		xmlBody += "</entry>"+endOfLine;
 		f = Number(f) +1;
 	}
-	xmlBody += "</list>";	
+	xmlBody += "</list>";
 	xml += xmlBody;
 	return xml;
 }
@@ -99,10 +106,10 @@ function getFilteredResults(query){
 	let q = "";
 	
 	if(surname !== ""){
-		q = "and lower(surname) LIKE \'"+surname.toLowerCase() +"%\'";
+		q = "lower(surname) LIKE \'"+surname.toLowerCase() +"%\'";
 	}
 	else{
-		q = "and number LIKE \'"+ bphone +"%\'";
+		q = "number LIKE \'"+ bphone +"%\'";
 	}
 	
 	return q
