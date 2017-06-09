@@ -46,7 +46,6 @@ app.get('/', function (req, res) {
 		let results = sqlite.run("SELECT id,number,name,surname FROM contacts where id>="+first+" and id<="+(Number(first)+Number(count)-1)+ " and "+ filters +" order by id");
 						
 		if(results!== undefined && results.length> 0){
-			//console.log("SELECT id from contacts where "+ filters +" order by id");
 			let totalContacts = sqlite.run("SELECT id from contacts where "+ filters +" order by id");
 
 			let tot = (count < results.length) ? count : results.length;
@@ -87,8 +86,7 @@ function getXMLPhonebook(r, t, c, f, ctot, tot){
 	for(let i=0;i<tot; i++){
 		xmlBody += "<entry id=\""+(f)+"\">"+endOfLine;
 		xmlBody += "<fn>"+r[i].name+"</fn>"+endOfLine;
-		//xmlBody += "<ln>"+r[i].surname+"</ln>"+endOfLine;
-		xmlBody += "<ln>"+Number(f)+"</ln>"+endOfLine;
+		xmlBody += "<ln>"+r[i].surname+"</ln>"+endOfLine;
 		xmlBody += "<mb>"+r[i].number+"</mb>"+endOfLine;
 		xmlBody += "</entry>"+endOfLine;
 		f = Number(f) +1;
