@@ -18,10 +18,13 @@ Note: the web server default port is **3000**. You can change it on the code.
 
 ## Run
 
-After the installation process, move into the project directory and start the phonebook server.
+After the installation process, move into the project directory and start the phonebook server dialing in the console.
 ```
 node server.js
 ```
+
+## Stop
+In the console press **CTRL+C**.
 
 ## Populate phonebook
 
